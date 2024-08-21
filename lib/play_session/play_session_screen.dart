@@ -18,6 +18,7 @@ import '../player_progress/player_progress.dart';
 import '../style/confetti.dart';
 import '../style/my_button.dart';
 import '../style/palette.dart';
+import 'board_state.dart';
 import 'game_widget.dart';
 
 /// This widget defines the entirety of the screen that the player sees when
@@ -67,6 +68,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
             onWin: _playerWon,
           ),
         ),
+        ChangeNotifierProvider(
+          create: (context) => BoardState(rows: 8, cols: 5, remainingTiles: 40),
+        ),
       ],
       child: IgnorePointer(
         // Ignore all input during the celebration animation.
@@ -94,12 +98,12 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
+                  // const Spacer(),
                   const Expanded(
                     // The actual UI of the game.
                     child: GameWidget(),
                   ),
-                  const Spacer(),
+                  // const Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: MyButton(

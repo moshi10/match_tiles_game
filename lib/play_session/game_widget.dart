@@ -2,11 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:basic/play_session/board_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../audio/audio_controller.dart';
-import '../audio/sounds.dart';
 import '../game_internals/level_state.dart';
 import '../level_selection/levels.dart';
 
@@ -19,21 +18,47 @@ class GameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final level = context.watch<GameLevel>();
     final levelState = context.watch<LevelState>();
-
-    return Column(
-      children: [
-        Text('Drag the slider to ${level.difficulty}% or above!'),
-        Slider(
-          label: 'Level Progress',
-          autofocus: true,
-          value: levelState.progress / 100,
-          onChanged: (value) => levelState.setProgress((value * 100).round()),
-          onChangeEnd: (value) {
-            context.read<AudioController>().playSfx(SfxType.wssh);
-            levelState.evaluate();
-          },
-        ),
-      ],
+    final boardState = context.watch<BoardState>();
+    List<GameCell> visibleCellList = boardState.cellList
+        .where((cell) => cell.cellType != GameCellType.wall)
+        .toList();
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: (boardState.cols + 2),
+      ),
+      itemCount: (boardState.rows + 2) * (boardState.cols + 2),
+      itemBuilder: (context, index) {
+        int row = index ~/ (boardState.cols + 2);
+        int col = index % (boardState.cols + 2);
+        return GestureDetector(
+          onTap: () {},
+          child: GridTile(
+            child: Container(
+              alignment: Alignment.center,
+              decoration: visibleCellList[index].toString() == 'E'
+                  ? null
+                  : BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      color: row == 0 ||
+                              row == (boardState.rows + 1) ||
+                              col == 0 ||
+                              col == (boardState.cols + 1)
+                          ? null
+                          : Colors.white),
+              child: Text(
+                visibleCellList[index].toString() == 'E'
+                    ? ''
+                    : visibleCellList[index].toString(),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
